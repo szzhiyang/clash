@@ -2,7 +2,9 @@ package route
 
 import (
 	"bytes"
+	"embed"
 	"encoding/json"
+	"io/fs"
 	"net"
 	"net/http"
 	"strings"
@@ -18,6 +20,9 @@ import (
 	"github.com/go-chi/render"
 	"github.com/gorilla/websocket"
 )
+
+//go:embed ui/*
+var ui embed.FS
 
 var (
 	serverSecret = ""
@@ -73,9 +78,10 @@ func Start(addr string, secret string) {
 		r.Mount("/providers/proxies", proxyProviderRouter())
 	})
 
-	if uiPath != "" {
+	if true {
 		r.Group(func(r chi.Router) {
-			fs := http.StripPrefix("/ui", http.FileServer(http.Dir(uiPath)))
+			ui, _ := fs.Sub(ui, "ui")
+			fs := http.StripPrefix("/ui", http.FileServer(http.FS(ui)))
 			r.Get("/ui", http.RedirectHandler("/ui/", http.StatusTemporaryRedirect).ServeHTTP)
 			r.Get("/ui/*", func(w http.ResponseWriter, r *http.Request) {
 				fs.ServeHTTP(w, r)
