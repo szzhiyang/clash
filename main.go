@@ -67,7 +67,8 @@ func main() {
 		}
 		C.SetConfig(configFile)
 	} else {
-		configFile := filepath.Join(C.Path.HomeDir(), C.Path.Config())
+		userHomeDir, _ := os.UserHomeDir()
+		configFile := filepath.Join(userHomeDir, "clash.yaml")
 		C.SetConfig(configFile)
 	}
 
